@@ -17,6 +17,8 @@ export type WhatsAppActionConfig = {
   polls?: boolean;
 };
 
+export type WhatsAppReactionLevel = "off" | "ack" | "minimal" | "extensive";
+
 export type WhatsAppGroupConfig = {
   requireMention?: boolean;
   tools?: GroupToolPolicyConfig;
@@ -77,6 +79,14 @@ type WhatsAppSharedConfig = {
   groups?: Record<string, WhatsAppGroupConfig>;
   /** Acknowledgment reaction sent immediately upon message receipt. */
   ackReaction?: WhatsAppAckReactionConfig;
+  /**
+   * Controls agent reaction behavior:
+   * - "off": No reactions
+   * - "ack": Only automatic ack reactions
+   * - "minimal": Agent can react sparingly
+   * - "extensive": Agent can react liberally (default)
+   */
+  reactionLevel?: WhatsAppReactionLevel;
   /** Debounce window (ms) for batching rapid consecutive messages from the same sender (0 to disable). */
   debounceMs?: number;
   /** Heartbeat visibility settings. */
