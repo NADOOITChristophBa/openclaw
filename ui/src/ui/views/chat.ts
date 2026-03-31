@@ -1132,6 +1132,21 @@ export function renderChat(props: ChatProps) {
 
     // Page Down is now handled globally in speech.ts
 
+    // Send on Ctrl+Enter (or Cmd+Enter on Mac) - textarea focused version
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      if (!props.connected) {
+        return;
+      }
+      e.preventDefault();
+      if (canCompose) {
+        if (props.draft.trim()) {
+          inputHistory.push(props.draft);
+        }
+        props.onSend();
+      }
+      return;
+    }
+
     // Send on Enter (without shift)
     if (e.key === "Enter" && !e.shiftKey) {
       if (e.isComposing || e.keyCode === 229) {
