@@ -49,10 +49,10 @@ function playBeep(frequency: number = 800, duration: number = 0.15, volume: numb
 }
 
 function playDoneSound(): void {
-  // Pleasant ascending chime for completion
-  playBeep(523, 0.12, 0.15); // C5
-  setTimeout(() => playBeep(659, 0.12, 0.15), 100); // E5
-  setTimeout(() => playBeep(784, 0.15, 0.15), 200); // G5
+  // Pleasant soft ascending chime for completion
+  playBeep(392, 0.15, 0.1); // G4 - softer low tone
+  setTimeout(() => playBeep(494, 0.15, 0.1), 120); // B4 - softer
+  setTimeout(() => playBeep(587, 0.18, 0.1), 240); // D5 - softer
 }
 
 function playStartSound(): void {
@@ -308,6 +308,10 @@ export function startStt(callbacks: SttCallbacks): boolean {
         } finally {
           stream.getTracks().forEach((track) => track.stop());
           audioChunks = [];
+          // Play stop sound when recording actually stops
+          if (sessionId === currentSessionId) {
+            sttCallbacks?.onEnd?.();
+          }
         }
       };
 
