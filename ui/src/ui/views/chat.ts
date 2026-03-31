@@ -1130,6 +1130,8 @@ export function renderChat(props: ChatProps) {
       return;
     }
 
+    // Page Down is now handled globally in speech.ts
+
     // Send on Enter (without shift)
     if (e.key === "Enter" && !e.shiftKey) {
       if (e.isComposing || e.keyCode === 229) {

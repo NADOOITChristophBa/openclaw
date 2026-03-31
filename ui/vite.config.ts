@@ -38,6 +38,14 @@ export default defineConfig(() => {
       host: true,
       port: 5173,
       strictPort: true,
+      proxy: {
+        "/v1/audio/transcriptions": {
+          target: "http://localhost:8890",
+          changeOrigin: true,
+          rewrite: (path) =>
+            path.replace(/^\/v1\/audio\/transcriptions/, "/v1/audio/transcriptions"),
+        },
+      },
     },
     plugins: [
       {
