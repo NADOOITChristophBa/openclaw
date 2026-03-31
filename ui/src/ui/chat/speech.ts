@@ -16,6 +16,46 @@ function getSttServerUrl(): string {
   return window.STT_SERVER_URL || "";
 }
 
+// ─── Audio Feedback Sounds ───
+
+let beepAudioContext: AudioContext | null = null;
+
+function playBeep(frequency: number = 800, duration: number = 0.1, volume: number = 0.3): void {
+  try {
+    if (!beepAudioContext) {
+      beepAudioContext = new AudioContext();
+    }
+    const oscillator = beepAudioContext.createOscillator();
+    const gainNode = beepAudioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(beepAudioContext.destination);
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = "sine";
+    gainNode.gain.value = volume;
+
+    oscillator.start();
+    oscillator.stop(beepAudioContext.currentTime + duration);
+  } catch (e) {
+    console.error("[SPEECH] Failed to play beep:", e);
+  }
+}
+
+function playDoneSound(): void {
+  // Double beep for completion
+  playBeep(1200, 0.08, 0.3);
+  setTimeout(() => playBeep(1200, 0.08, 0.3), 150);
+}
+
+function playStartSound(): void {
+  playBeep(1000, 0.1, 0.3);
+}
+
+function playStopSound(): void {
+  playBeep(800, 0.1, 0.3);
+}
+
 // ─── STT (Speech-to-Text) via Cohere Server ───
 
 export type SttCallbacks = {
@@ -71,8 +111,14 @@ export function initVoiceShortcut(): void {
               }
             }
           },
-          onStart: () => console.log("[VOICE] Recording started"),
-          onEnd: () => console.log("[VOICE] Recording ended"),
+          onStart: () => {
+            playStartSound();
+            console.log("[VOICE] Recording started");
+          },
+          onEnd: () => {
+            playStopSound();
+            console.log("[VOICE] Recording ended");
+          },
           onError: (err) => console.error("[VOICE] Error:", err),
         };
         startStt(sttCallbacks);
@@ -241,6 +287,7 @@ export function startStt(callbacks: SttCallbacks): boolean {
 
           if (text && sttCallbacks && sessionId === currentSessionId) {
             console.log("[STT] Calling onTranscript with:", text);
+            playDoneSound(); // Play completion sound
             sttCallbacks.onTranscript(text, true);
           }
         } catch (error) {
