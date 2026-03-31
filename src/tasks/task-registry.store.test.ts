@@ -17,7 +17,8 @@ function createStoredTask(): TaskRecord {
     taskId: "task-restored",
     runtime: "acp",
     sourceId: "run-restored",
-    requesterSessionKey: "agent:main:main",
+    ownerKey: "agent:main:main",
+    scopeKind: "session",
     childSessionKey: "agent:codex:acp:restored",
     runId: "run-restored",
     task: "Restored task",
@@ -57,7 +58,8 @@ describe("task-registry store runtime", () => {
 
     createTaskRecord({
       runtime: "acp",
-      requesterSessionKey: "agent:main:main",
+      ownerKey: "agent:main:main",
+      scopeKind: "session",
       childSessionKey: "agent:codex:acp:new",
       runId: "run-new",
       task: "New task",
@@ -93,7 +95,8 @@ describe("task-registry store runtime", () => {
     expect(findTaskByRunId("run-restored")).toBeTruthy();
     const created = createTaskRecord({
       runtime: "acp",
-      requesterSessionKey: "agent:main:main",
+      ownerKey: "agent:main:main",
+      scopeKind: "session",
       childSessionKey: "agent:codex:acp:new",
       runId: "run-new",
       task: "New task",
@@ -120,7 +123,8 @@ describe("task-registry store runtime", () => {
   it("restores persisted tasks from the default sqlite store", () => {
     const created = createTaskRecord({
       runtime: "cron",
-      requesterSessionKey: "agent:main:main",
+      ownerKey: "agent:main:main",
+      scopeKind: "session",
       sourceId: "job-123",
       runId: "run-sqlite",
       task: "Run nightly cron",
@@ -147,7 +151,8 @@ describe("task-registry store runtime", () => {
 
     createTaskRecord({
       runtime: "cron",
-      requesterSessionKey: "agent:main:main",
+      ownerKey: "agent:main:main",
+      scopeKind: "session",
       sourceId: "job-456",
       runId: "run-perms",
       task: "Run secured cron",
