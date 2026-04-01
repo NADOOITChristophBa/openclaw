@@ -1,3 +1,5 @@
+Start with cd /Users/<USERNAME>/Documents/GitHub/NADOO-Agent && pnpm dev
+
 # 🦞 OpenClaw — Personal AI Assistant
 
 <p align="center">
