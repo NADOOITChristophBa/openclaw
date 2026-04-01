@@ -13,7 +13,7 @@ declare global {
 }
 
 function getSttServerUrl(): string {
-  return window.STT_SERVER_URL || "";
+  return "http://localhost:8890";
 }
 
 // ─── Audio Feedback Sounds ───
@@ -223,7 +223,7 @@ function writeString(view: DataView, offset: number, str: string): void {
 async function sendToSttServer(wavBlob: Blob): Promise<string> {
   const formData = new FormData();
   formData.append("file", wavBlob, "audio.wav");
-  formData.append("model", "cohere-transcribe");
+  formData.append("model", "base");
   formData.append("language", "de");
 
   const serverUrl = getSttServerUrl();

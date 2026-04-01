@@ -1290,6 +1290,10 @@
           "strip-ansi": "^7.2.0"
         }
       }
-    }
+    },
+    "minimumReleaseAgeExclude": [
+      "matrix-js-sdk",
+      "@pierre/theme"
+    ]
   }
 }

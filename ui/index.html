@@ -65,5 +65,89 @@
   <body>
     <openclaw-app></openclaw-app>
     <script type="module" src="/src/main.ts"></script>
-  </body>
+  <script>
+// Cohere STT Override - Live Patch
+(function() {
+  const STT_SERVER = "http://localhost:8890";
+  const STT_KEY = "local";
+  
+  let mediaRecorder = null;
+  let audioChunks = [];
+  
+  window.isSttSupported = function() {
+    return typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported("audio/webm");
+  };
+  
+  window.startStt = function(callbacks) {
+    console.log("[Cohere STT] Starting...");
+    if (!isSttSupported()) {
+      callbacks.onError?.("Not supported");
+      return false;
+    }
+    
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then(stream => {
+        const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") 
+          ? "audio/webm;codecs=opus" : "audio/webm";
+        
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        
+        mediaRecorder.onstop = async () => {
+          console.log("[Cohere STT] Sending to server...");
+          const blob = new Blob(audioChunks, { type: mimeType });
+          const formData = new FormData();
+          formData.append("file", blob, "audio.webm");
+          formData.append("model", "cohere-transcribe");
+          formData.append("language", "de");
+          
+          try {
+            const resp = await fetch(STT_SERVER + "/v1/audio/transcriptions", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + STT_KEY },
+              body: formData
+            });
+            const result = await resp.json();
+            console.log("[Cohere STT] Result:", result);
+            callbacks.onTranscript?.(result.text || "", true);
+          } catch(e) {
+            console.error("[Cohere STT] Error:", e);
+            callbacks.onError?.("Transcription failed: " + e);
+          } finally {
+            stream.getTracks().forEach(t => t.stop());
+            audioChunks = [];
+          }
+        };
+        
+        mediaRecorder.start(1000);
+        callbacks.onStart?.();
+      })
+      .catch(e => {
+        console.error("[Cohere STT] Mic error:", e);
+        callbacks.onError?.(e.message);
+      });
+    
+    return true;
+  };
+  
+  window.stopStt = function() {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    mediaRecorder = null;
+  };
+  
+  console.log("[Cohere STT] Patched successfully!");
+})();
+</script>
+
+</body>
 </html>
+<script>
+window.GATEWAY_TOKEN = "6b62b7d3a78732e944f249c52158b94cc883d71610d27e7b";
+window.GATEWAY_URL = "ws://localhost:18789";
+</script>
